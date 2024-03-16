@@ -7,6 +7,7 @@ Telegram Bot which tracks user expenses monthly
 1. ``pip install -r requirements.txt``
 2. Add your *Telegram Bot API* to **.env** acquired from *Bot Father*
 3. Uncomment and set your *Telegram User ID* to **core.py** in **line 16**
+4. After running the bot, use the ``/startmonthlyreport`` command to send monthly reports to the users automatically
 
 ## Addtional Currencies
 If you wish to add more currencies, head over to **other/other.json** and add your preferred currency
