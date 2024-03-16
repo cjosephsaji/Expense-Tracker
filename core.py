@@ -13,7 +13,7 @@ from threading import Thread
 load_dotenv()
 
 
-admin_id = 'TELEGRAM_USER_ID'
+#admin_id = TELEGRAM_USER_ID
 bot = AsyncTeleBot(os.environ.get("TELEGRAM_API"))
 menu_markup = quick_markup({
     'Add Product': {'callback_data': 'add'},
