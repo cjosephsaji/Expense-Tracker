@@ -119,7 +119,7 @@ async def start_month_reporter():
                     user_id = key
                     for item, price in value["Items"].items(): 
                         expense += f'{item} : {price["price"]}{value["currency"]}\n'
-                        total_price += int(price["price"])
+                        total_price += float(price["price"])
                 expense += f'\n\nTotal Expense : {total_price}{value["currency"]}'
                 await bot.send_message(user_id, formatting.hcode(expense), parse_mode='HTML')
         await asyncio.sleep(86400)
