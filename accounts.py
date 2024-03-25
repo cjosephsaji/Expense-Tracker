@@ -111,7 +111,7 @@ async def custom_report(data, user_id):
     else:
         for expense in json_data["Accounts"][month_year][str(user_id)]["Items"]:
             month_expense += str(count) + '. ' + expense + ' : ' + json_data["Accounts"][month_year][str(user_id)]["Items"][expense]['price'] + json_data["Accounts"][month_year][str(user_id)]["currency"] + '\n'
-            price_total += int(json_data["Accounts"][month_year][str(user_id)]["Items"][expense]['price'])
+            price_total += float(json_data["Accounts"][month_year][str(user_id)]["Items"][expense]['price'])
             count += 1
         if month_expense == "":
             month_expense = 'No Products Added!'
