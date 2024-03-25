@@ -12,7 +12,7 @@ async def add_expense(data, user_id, command_to_split):
     if "repeat" in data_from_user:
         repeat_monthly = True
     for el in data_from_user:
-        if el.isnumeric():
+        if el.isnumeric() or el == ".":
             price += el
         elif el.isalpha() or el.isspace():
             description += el
