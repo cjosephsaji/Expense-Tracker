@@ -13,7 +13,18 @@ from threading import Thread
 load_dotenv()
 
 
-#admin_id = TELEGRAM_USER_ID
+#admin_id = 1813708429
+async def check_setting_bot():
+    st1 = await open_json_data('other/other.json', 'r')
+    if st1['month'] != datetime.datetime.now().strftime("%B") and st1['year'] != datetime.datetime.now().strftime("%Y"):
+        st1['month'] = datetime.datetime.now().strftime("%B")
+        st1['year'] = datetime.datetime.now().strftime("%Y")
+        await open_json_data('other/other.json', 'w', st1)
+    st2 = await open_json_data('findata/monthlydata.json', 'r')
+    if st1['month'] + ' ' + st1['year'] not in st2['Accounts']:
+        st2['Accounts'][st1['month'] + ' ' + st1['year']] = {}
+        await open_json_data('findata/monthlydata.json','w', st2)
+
 bot = AsyncTeleBot(os.environ.get("TELEGRAM_API"))
 menu_markup = quick_markup({
     'Add Product': {'callback_data': 'add'},
@@ -35,6 +46,7 @@ async def check_text_command(data):
 
 @bot.message_handler(func=lambda message: not message.text.startswith('/'))
 async def menu_auth(message):
+    await check_setting_bot()
     if await check_banned_users(message.from_user.username) == False:
         if await check_auth_user(message.from_user.id):
                 command = await check_text_command(message.text)
@@ -48,25 +60,22 @@ async def menu_auth(message):
                             if not command:
                                 await bot.reply_to(message,formatting.hcode('Please enter a valid product name and price'), parse_mode='HTML')
                             else:
-                                await bot.reply_to(message,formatting.hcode('Done'), parse_mode='HTML')
+                                await bot.reply_to(message,command, parse_mode='Markdown')
                         else:
                             await bot.reply_to(message,await currency(message.from_user.id, "setting"),parse_mode='Markdown')
                     elif command_dict[0][1] == 'remove':
                         if await currency(message.from_user.id):
                             response = await remove_expense(message.from_user.id, message.text)
-                            if response == True:
-                                await bot.reply_to(message,formatting.hcode('Done'), parse_mode='HTML')
-                            else:
-                                await bot.reply_to(message,formatting.hcode(response), parse_mode='HTML')
+                            await bot.reply_to(message,response, parse_mode='Markdown')
                         else:
                             await bot.reply_to(message,await currency(message.from_user.id, "setting"),parse_mode='Markdown')
                     elif command_dict[0][1] == 'custom_report':
                         if await currency(message.from_user.id):
                             response = await custom_report(message.text, message.from_user.id)
                             if not response:
-                                await bot.reply_to(message,formatting.hcode(f'Data not Available\nReport available from March 2024 Only\n\nDate Today : {datetime.datetime.now().strftime("%d/%m/%Y")}'), parse_mode='HTML')
+                                await bot.reply_to(message,formatting.hcode(f'Data not Available\nReport available from April 2024 Only\n\nDate Today : {datetime.datetime.now().strftime("%d/%m/%Y")}'), parse_mode='HTML')
                             else:
-                                await bot.reply_to(message,formatting.hcode(response), parse_mode='HTML')
+                                await bot.reply_to(message,response, parse_mode='Markdown')
                         else:
                             await bot.reply_to(message,await currency(message.from_user.id, "setting"),parse_mode='Markdown')
                     elif command_dict[0][1] == 'currency':
@@ -119,7 +128,7 @@ async def start_month_reporter():
                     user_id = key
                     for item, price in value["Items"].items(): 
                         expense += f'{item} : {price["price"]}{value["currency"]}\n'
-                        total_price += float(price["price"])
+                        total_price += int(price["price"])
                 expense += f'\n\nTotal Expense : {total_price}{value["currency"]}'
                 await bot.send_message(user_id, formatting.hcode(expense), parse_mode='HTML')
         await asyncio.sleep(86400)
@@ -174,5 +183,4 @@ async def callback_data(callback):
     elif 'custom_report' in callback.data:
         await bot.send_message(callback.from_user.id, "Please use the command below (Click to Copy)\n`report [month (optional)] [year (optional)]`\n\n‼️ Don't use the Square Braces\nExample : `report march 2024`", parse_mode='Markdown')
         
-
 asyncio.run(bot.infinity_polling())
