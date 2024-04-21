@@ -15,9 +15,19 @@ async def add_expense(data, user_id, command_to_split):
         for el in data_to_enter:
             if el.isnumeric():
                 price += el
+            if el == '.' and price[-1].isnumeric():
+                price += el
+            elif el in ['+', '-', '*', 'x','X','/','÷']:
+                if el == 'x' or el == 'X':
+                    price += el.replace(el, '*')
+                elif el == '/' or el == '÷':
+                    price += el.replace(el, '/')
+                else:
+                    price += el
             elif el.isalpha() or el.isspace():
                 description += el
         description = description.replace(' repeat', '')
+        price = str(eval(price))
         if price.strip() == "" or description.strip() == "":
             return False
         else:
@@ -31,12 +41,12 @@ async def add_expense(data, user_id, command_to_split):
     count = 1
     for expense in json_data_read["Accounts"][month_year][str(user_id)]["Items"]:
         month_expense += str(count) + '. ' + f"`{expense}`" + ' : ' + json_data_read["Accounts"][month_year][str(user_id)]["Items"][expense]['price'] + json_data_read["Accounts"][month_year][str(user_id)]["currency"] + '\n'
-        price_total += int(json_data_read["Accounts"][month_year][str(user_id)]["Items"][expense]['price'])
+        price_total += float(json_data_read["Accounts"][month_year][str(user_id)]["Items"][expense]['price'])
         count += 1
     if month_expense == "":
         month_expense = 'No Products Added!'
     else:
-        month_expense += f'\nTotal : {price_total}{json_data_read["Accounts"][month_year][str(user_id)]["currency"]}'
+        month_expense += f'\nTotal : {round(price_total,2)}{json_data_read["Accounts"][month_year][str(user_id)]["currency"]}'
     return month_expense
 
 
@@ -80,7 +90,7 @@ async def remove_expense(user_id, user_option):
 
         for expense in json_data["Accounts"][month_year][str(user_id)]["Items"]:
             month_expense += str(count) + '. ' + f"`{expense}`" + ' : ' + json_data["Accounts"][month_year][str(user_id)]["Items"][expense]['price'] + json_data["Accounts"][month_year][str(user_id)]["currency"] + '\n'
-            price_total += int(json_data["Accounts"][month_year][str(user_id)]["Items"][expense]['price'])
+            price_total += float(json_data["Accounts"][month_year][str(user_id)]["Items"][expense]['price'])
             count += 1
         if month_expense == "":
             month_expense = 'Product list emptied'
@@ -88,7 +98,7 @@ async def remove_expense(user_id, user_option):
             if product_found == 0:
                 month_expense += f"Please double-check if the following items exist in the list and try again : \n`{products_not_found}`"
             else:
-                month_expense += f'\nTotal : {price_total}{json_data["Accounts"][month_year][str(user_id)]["currency"]}'
+                month_expense += f'\nTotal : {round(price_total,2)}{json_data["Accounts"][month_year][str(user_id)]["currency"]}'
         return month_expense
 
 
@@ -145,10 +155,10 @@ async def custom_report(data, user_id):
     else:
         for expense in json_data["Accounts"][month_year][str(user_id)]["Items"]:
             month_expense += str(count) + '. ' + f"`{expense}`" + ' : ' + json_data["Accounts"][month_year][str(user_id)]["Items"][expense]['price'] + json_data["Accounts"][month_year][str(user_id)]["currency"] + '\n'
-            price_total += int(json_data["Accounts"][month_year][str(user_id)]["Items"][expense]['price'])
+            price_total += float(json_data["Accounts"][month_year][str(user_id)]["Items"][expense]['price'])
             count += 1
         if month_expense == "":
             month_expense = 'No Products Added!'
         else:
-            month_expense += f'\nTotal : {price_total}{json_data["Accounts"][month_year][str(user_id)]["currency"]}'
+            month_expense += f'\nTotal : {round(price_total,2)}{json_data["Accounts"][month_year][str(user_id)]["currency"]}'
         return month_expense
