@@ -1,10 +1,11 @@
 import datetime
 from authorization import open_json_data
-
+import re
 
 async def add_expense(data, user_id, command_to_split):
     month_year = datetime.datetime.now().strftime("%B %Y")
-    data_from_user = data.replace(command_to_split,"").split(",")
+    pattern = re.compile(r'\badd\b', re.IGNORECASE)
+    data_from_user = pattern.sub("", data).split(",")
     json_data_read = await open_json_data('findata/monthlydata.json', 'r')
     for data_to_enter in data_from_user:
         price = ""
@@ -27,10 +28,10 @@ async def add_expense(data, user_id, command_to_split):
             elif el.isalpha() or el.isspace():
                 description += el
         description = description.replace(' repeat', '')
-        price = str(eval(price))
         if price.strip() == "" or description.strip() == "":
             return False
         else:
+            price = str(eval(price))
             if str(user_id) in json_data_read["Accounts"][month_year]:
                 json_data_read["Accounts"][month_year][str(user_id)]["Items"].update({description.strip() : {"price":price.strip(), "repeat_monthly" : repeat_monthly}})
             else:
@@ -63,7 +64,8 @@ async def remove_expense(user_id, user_option):
         await open_json_data('findata/monthlydata.json', 'w', json_data)
         return "Deleted all items"
     else:
-        data_from_user = user_option.replace("remove", "").split(',')
+        pattern = re.compile(r'\bremove\b', re.IGNORECASE)
+        data_from_user = pattern.sub("", user_option).split(",")
         for data_to_remove in data_from_user:
             product_found = 1
             if data_to_remove.strip().isnumeric():
