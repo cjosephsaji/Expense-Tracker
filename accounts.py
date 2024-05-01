@@ -32,7 +32,7 @@ async def add_expense(data, user_id, command_to_split):
             return False
         else:
             price = str(eval(price))
-            if str(user_id) in json_data_read["Accounts"][month_year]:
+            if json_data_read["Accounts"][month_year]:
                 json_data_read["Accounts"][month_year][str(user_id)]["Items"].update({description.strip() : {"price":price.strip(), "repeat_monthly" : repeat_monthly}})
             else:
                 json_data_read["Accounts"][month_year][str(user_id)]["Items"] = {description.strip() : {"price":price.strip(), "repeat_monthly" : repeat_monthly}}
@@ -152,7 +152,7 @@ async def custom_report(data, user_id):
     month_year = month.strip() + ' ' + year.strip()
     month_expense = ''
     count = 1
-    if month_year not in json_data["Accounts"]:
+    if month_year not in json_data["Accounts"] or str(user_id) not in json_data["Accounts"][month_year]:
         return False
     else:
         for expense in json_data["Accounts"][month_year][str(user_id)]["Items"]:
